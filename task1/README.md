@@ -2,23 +2,23 @@
 
 ##Epic -- Address Book MVP
 
-The sales team would like a new address book application to keep track of information. They need to track their client's names, which organization they represent, as well as their contact information.
+The sales team would like a new address book application. They need to track their client's names, which organization they represent, as well as their contact information.
 
 ##Stories
 
 ###Story 1
-As the user, I would like to be able to add contacts in the following format:
+As the user, I would like to be able to **add** contacts in the following format:
 
 `[first name],[last name],[organization],[phone number],[email]`
 
 ###Story 2
-As the user, I would like to view all the contacts I have ever entered into the address book along with their information, listed in alphabetical order of their last name.
+As the user, I would like to **output** all the contacts I have ever entered into the address book, along with their information. Entries should be listed in alphabetical order of their last name.
 
 ###Story 3
-As the user, I would like to search for and output all the contacts for a specific organization, listed in alphabetical order of their last name.
+As the user, I would like to search for and **output** all the contacts for a specific organization. Entries should be listed in alphabetical order of their last name.
 
 ###Story 4
-As the user, I would like to be able to update a contact's information by adding a contact with the same first name, last name and organization.
+As the user, I would like to be able to **update** a contact's information by adding a contact with the same first name, last name and organization.
 
 
 
