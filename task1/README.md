@@ -18,7 +18,7 @@ As the user, I would like to **output** all the contacts I have ever entered int
 As the user, I would like to search for and **output** all the contacts for a specific organization. Entries should be listed in alphabetical order of their last name.
 
 ###Story 4
-As the user, I would like to be able to **update** a contact's information by adding a contact with the same first name, last name and organization.
+As the user, I would like to be able to **update** a contact's information by adding a contact with the same first name and last name.
 
 
 
