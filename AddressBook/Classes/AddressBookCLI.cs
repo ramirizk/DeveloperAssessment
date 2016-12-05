@@ -17,7 +17,7 @@ namespace AddressBook.Classes
         //Run runs the main menu for the address book program until the user quits.
         public void Run()
         {
-            Console.WriteLine("(1) Add Contact to Book\n\n(2) View Contacts in Book\n\n (3) Search Contacts in Organization\n\n (4) Update Contact\n\n (q) Quit\n");
+            Console.WriteLine("(1) Add Contact to Book\n\n(2) View Contacts in Book\n\n (3) Search Contacts in Organization\n\n (4) Update Contact\n\n (5) Search First Names, Last Names, and Organizations\n\n (q) Quit\n");
             mainSelection = Console.ReadLine();
             Console.WriteLine("\n");
             while (inMainMenu == true)
@@ -51,7 +51,10 @@ namespace AddressBook.Classes
                     UpdateContact();
                     AfterProcessingUserSelection();
                     break;
-
+                case "5":
+                    SearchFirstLastOrg();
+                    AfterProcessingUserSelection();
+                    break;
                 case "q":
                     inMainMenu = false;
                     break;
@@ -68,27 +71,63 @@ namespace AddressBook.Classes
             }
         }
 
+        //Searches first name, last name, and Organization for partial string provided by user and returns the results.
+        private void SearchFirstLastOrg()
+        {
+            Console.Clear();
+            Console.WriteLine("Search first name, last name, or organization based on partial value, using *. \n For Example: Ma*");
+            string searchString = Console.ReadLine();
+            string[] searchParse = searchString.Split('*');
+            string searchPhrase = searchParse[0];
+            List<Contact> allContacts = addressBook.AddressBookReader();
+            bool matchFound = false; 
 
+            for (int i = 0; i < allContacts.Count; i++)
+            {
+                if (allContacts[i].FirstName.Contains(searchPhrase) || allContacts[i].LastName.Contains(searchPhrase) || allContacts[i].Organization.Contains(searchPhrase))
+                {
+                    matchFound = true;
+
+                    Console.WriteLine("Contact " + (i + 1) + ":");
+                    Console.WriteLine("First Name: " + allContacts[i].FirstName);
+                    Console.WriteLine("Last Name: " + allContacts[i].LastName);
+                    Console.WriteLine("Organization: " + allContacts[i].Organization);
+                    Console.WriteLine("Phone Number: " + allContacts[i].PhoneNumber);
+                    Console.WriteLine("Email: " + allContacts[i].Email);
+                    Console.WriteLine();
+                }
+            }
+            if (!matchFound)
+            {
+                Console.WriteLine("There is no match for that search");
+            }
+            Console.Write("Press enter to return to main menu ...");
+            Console.ReadLine();
+        }
 
         //Adds a contact to the address book. And makes sure it is valid data before saving to csv.
         public void AddContact()
         {
             Contact contact = new Contact();
+            string header = "Enter the new contact's information";
+            while (modelValid == false)
+            {
+                Console.Clear();
+                Console.WriteLine(header);
+                Console.WriteLine("Enter First Name:");
+                contact.FirstName = Console.ReadLine();
+                Console.WriteLine("Enter Last Name:");
+                contact.LastName = Console.ReadLine();
+                Console.WriteLine("Enter Contact's Organization:");
+                contact.Organization = Console.ReadLine();
+                Console.WriteLine("Enter Contact's Phone Number:");
+                contact.PhoneNumber = Console.ReadLine();
+                Console.WriteLine("Enter Contact's Email:");
+                contact.Email = Console.ReadLine();
 
-            Console.Clear();
-            Console.WriteLine("Enter the new contact's information");
-            Console.WriteLine("Enter First Name:");
-            contact.FirstName = Console.ReadLine();
-            Console.WriteLine("Enter Last Name:");
-            contact.LastName = Console.ReadLine();
-            Console.WriteLine("Enter Contact's Organization:");
-            contact.Organization = Console.ReadLine();
-            Console.WriteLine("Enter Contact's Phone Number:");
-            contact.PhoneNumber = Console.ReadLine();
-            Console.WriteLine("Enter Contact's Email:");
-            contact.Email = Console.ReadLine();
-
-
+                contact.PhoneNumber = Regex.Replace(contact.PhoneNumber, "[^0-9]", "");
+                header = ValidateInputs(contact);
+            }
             addressBook.AddressBookWriter(contact);
         }
 
@@ -123,7 +162,7 @@ namespace AddressBook.Classes
             {
                 if (searchKey == allContacts[i].Organization.ToLower())
                 {
-                    orgFound = true;
+                    orgFound=true;
                     Console.WriteLine("Contact " + (i + 1) + ":");
                     Console.WriteLine("First Name: " + allContacts[i].FirstName);
                     Console.WriteLine("Last Name: " + allContacts[i].LastName);
@@ -146,25 +185,29 @@ namespace AddressBook.Classes
         //Updates contact info when same first and last name are provided.
         public void UpdateContact()
         {
-
+            modelValid = false;
             Contact contact = new Contact();
 
-            Console.Clear();
+            string header = "Enter the Contact's First and Last names and information you would like update";
+            while (modelValid == false)
+            {
+                Console.Clear();
+                Console.WriteLine(header);
 
-
-            Console.WriteLine("Enter the Contact's First and Last names and information you would like update");
-            Console.WriteLine("Enter First Name:");
-            contact.FirstName = Console.ReadLine();
-            Console.WriteLine("Enter Last Name:");
-            contact.LastName = Console.ReadLine();
-            Console.WriteLine("Enter Contact's Organization:");
-            contact.Organization = Console.ReadLine();
-            Console.WriteLine("Enter Contact's Phone Number:");
-            contact.PhoneNumber = Console.ReadLine();
-            contact.PhoneNumber = Regex.Replace(contact.PhoneNumber, "[^0-9]", "");
-            Console.WriteLine("Enter Contact's Email:");
-            contact.Email = Console.ReadLine();
-
+                
+                Console.WriteLine("Enter First Name:");
+                contact.FirstName = Console.ReadLine();
+                Console.WriteLine("Enter Last Name:");
+                contact.LastName = Console.ReadLine();
+                Console.WriteLine("Enter Contact's Organization:");
+                contact.Organization = Console.ReadLine();
+                Console.WriteLine("Enter Contact's Phone Number:");
+                contact.PhoneNumber = Console.ReadLine();
+                contact.PhoneNumber = Regex.Replace(contact.PhoneNumber, "[^0-9]", "");
+                Console.WriteLine("Enter Contact's Email:");
+                contact.Email = Console.ReadLine();
+                header = ValidateInputs(contact);
+            }
             addressBook.AddressBookWriter(contact);
             bool updated = addressBook.UpdateExistingContact(contact);
             if (updated)
@@ -189,6 +232,44 @@ namespace AddressBook.Classes
             mainSelection = Console.ReadLine();
         }
 
-       
+        //Validates Users data that is entered.
+        public string ValidateInputs(Contact contact)
+        {
+            string message = "";
+            if (contact.FirstName != "" && contact.LastName != "" && contact.Organization != "" && contact.Email != "" && contact.PhoneNumber != "")
+            {
+                
+                char[] emailChar = new char[] { '.', '@' };
+                string[] emailFormat = contact.Email.Split(emailChar);
+                if (!Regex.IsMatch(contact.Email, @"^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$", RegexOptions.IgnoreCase))
+                {
+                    if (contact.PhoneNumber.Length != 11)
+                    {
+                        return message = "Phone number must be 11 digits\n Not a valid email address\n Please Try Again";
+                    }
+                    else
+                    {
+                        return message = "Not a valid email address\n Please Try Again";
+                    }
+                }
+                else
+                {
+                    if (contact.PhoneNumber.Length != 11)
+                    {
+                        return message = "Phone number must be 11 digits\n Please Try Again";
+                    }
+                    else
+                    {
+                        modelValid = true;
+                        return message = "";
+                    }
+
+                }
+            }
+            else
+            {
+                return message = "One or more of your fields is blank correct the error and try again.";
+            }
+        }
     }
 }
